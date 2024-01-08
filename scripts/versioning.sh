@@ -26,6 +26,7 @@ ALPHA=`git log --format=%B -n 1 HEAD | grep '(ALPHA)'`
 BETA=`git log --format=%B -n 1 HEAD | grep '(BETA)'`
 RC=`git log --format=%B -n 1 HEAD | grep '(RC)'`
 
+# Phase check if any tag exists, if not create one.
 if [ -z "$VERSION" ]; then
     echo "No tag exists setting the first tag to V0.0.0-alpha.1"
     VNUM1=0
@@ -41,6 +42,7 @@ elif ([ "$VNUM4" == 'rc' ] && [ "$BRANCH" != "main" ]); then
     NEW_TAG="v$VNUM1.$VNUM2.$VNUM3-$VNUM4.$VNUM5"
 fi
 
+# Runs checks for the Major, Minor and Patch instructions
 if [ "$MAJOR" ]; then
     echo "Update major version"
     VNUM1=$((VNUM1+1))
@@ -78,13 +80,14 @@ if ([ -z "$VNUM4" ] && [ "$BRANCH" == "main" ]); then
     VNUM4='rc'
     VNUM5=1
     NEW_TAG="v$VNUM1.$VNUM2.$VNUM3-$VNUM4.$VNUM5"
-# check if the previous tag was clean, if so revert to alpha.
-elif [ -z "$VNUM4" ]; then
+# check if the previous tag was clean and branch is not main, if so revert to alpha.
+elif ([ -z "$VNUM4" ] && [ "$BRANCH" != "main" ]); then
     VNUM4='alpha'
     VNUM5=1
     NEW_TAG="v$VNUM1.$VNUM2.$VNUM3-$VNUM4.$VNUM5"
 fi
 
+# Runs checks for the Clean, Phase, Alpha, Beta and RC instructions
 if [ "$CLEAN" ]; then
     if [ "$BRANCH" == "main" ]; then
         echo "Create a clean release tag removing additional labels"
