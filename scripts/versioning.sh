@@ -1,7 +1,10 @@
 #!/bin/bash
 
-# Developed by Jamie Holland at IMI Critical Engineering, Poole.
 # This bash script automates versioning for GitHub repositories
+# Created on: October 2023
+#     Author: Jamie Holland at IMI Critical Engineering, Poole.
+# Last Modified on: January 2024
+#     Author: Jamie Holland at IMI Critical Engineering, Poole.
 
 #get highest tag number
 REVLIST=`git rev-list --tags --max-count=1`
@@ -26,7 +29,7 @@ ALPHA=`git log --format=%B -n 1 HEAD | grep '(ALPHA)'`
 BETA=`git log --format=%B -n 1 HEAD | grep '(BETA)'`
 RC=`git log --format=%B -n 1 HEAD | grep '(RC)'`
 
-# Phase check if any tag exists, if not create one.
+# Checks if no tag exists, if so creates V0.0.0-alpha.1.
 if [ -z "$VERSION" ]; then
     echo "No tag exists setting the first tag to V0.0.0-alpha.1"
     VNUM1=0
@@ -35,14 +38,16 @@ if [ -z "$VERSION" ]; then
     VNUM4='alpha'
     VNUM5=1
     NEW_TAG="v$VNUM1.$VNUM2.$VNUM3-$VNUM4.$VNUM5"
-# check if the branch is not main then tag must drop down to beta
+# check if the previous tag is rc and the branch is not main, then tag drops to beta.
 elif ([ "$VNUM4" == 'rc' ] && [ "$BRANCH" != "main" ]); then
     VNUM4='beta'
     VNUM5=1
     NEW_TAG="v$VNUM1.$VNUM2.$VNUM3-$VNUM4.$VNUM5"
 fi
 
-# Runs checks for the Major, Minor and Patch instructions
+# Runs checks for the Major, Minor and Patch instructions,
+# also resets the phase number if incremental commands are run.
+# Upon receiving the MAJOR command increments the version number and resets the phase number.
 if [ "$MAJOR" ]; then
     echo "Update major version"
     VNUM1=$((VNUM1+1))
@@ -54,6 +59,7 @@ if [ "$MAJOR" ]; then
         VNUM5=0
         NEW_TAG="v$VNUM1.$VNUM2.$VNUM3-$VNUM4.$VNUM5"
     fi
+# Upon receiving the MINOR command increments the version number and resets the phase number.
 elif [ "$MINOR" ]; then
     echo "Update minor version"
     VNUM2=$((VNUM2+1))
@@ -64,6 +70,7 @@ elif [ "$MINOR" ]; then
         VNUM5=0
         NEW_TAG="v$VNUM1.$VNUM2.$VNUM3-$VNUM4.$VNUM5"
     fi
+# Upon receiving the PATCH command increments the version number and resets the phase number.
 elif [ "$PATCH" ]; then
     echo "Update patch version"
     VNUM3=$((VNUM3+1))
@@ -75,12 +82,12 @@ elif [ "$PATCH" ]; then
     fi
 fi
 
-# check if the previous tag was clean and branch is still main, if so revert to rc.
+# check if the previous tag was CLEAN and the branch is still main, if so revert to rc.
 if ([ -z "$VNUM4" ] && [ "$BRANCH" == "main" ]); then
     VNUM4='rc'
     VNUM5=1
     NEW_TAG="v$VNUM1.$VNUM2.$VNUM3-$VNUM4.$VNUM5"
-# check if the previous tag was clean and branch is not main, if so revert to alpha.
+# check if the previous tag was CLEAN and the branch is not main, if so revert to alpha.
 elif ([ -z "$VNUM4" ] && [ "$BRANCH" != "main" ]); then
     VNUM4='alpha'
     VNUM5=1
@@ -88,6 +95,7 @@ elif ([ -z "$VNUM4" ] && [ "$BRANCH" != "main" ]); then
 fi
 
 # Runs checks for the Clean, Phase, Alpha, Beta and RC instructions
+# Upon receiving the CLEAN command removes the phase and phase number.
 if [ "$CLEAN" ]; then
     if [ "$BRANCH" == "main" ]; then
         echo "Create a clean release tag removing additional labels"
@@ -96,10 +104,12 @@ if [ "$CLEAN" ]; then
         echo "Must be on the main branch to create a clean release tag"
         NEW_TAG="invalidbranch"
     fi
+# Upon receiving the PHASE command increments phase number.
 elif [ "$PHASE" ]; then
     echo "Update phase $VNUM4 version"
     VNUM5=$((VNUM5+1))
     NEW_TAG="v$VNUM1.$VNUM2.$VNUM3-$VNUM4.$VNUM5"
+# Upon receiving the ALPHA command sets the phase to alpha and phase number to 1.
 elif [ "$ALPHA" ]; then
     if [ "$VNUM4" == 'alpha' ]; then
         echo "Update alpha version"
@@ -111,6 +121,7 @@ elif [ "$ALPHA" ]; then
         VNUM5=1
         NEW_TAG="v$VNUM1.$VNUM2.$VNUM3-$VNUM4.$VNUM5"
     fi
+# Upon receiving the BETA command sets the phase to beta and phase number to 1.
 elif [ "$BETA" ]; then
     if [ "$VNUM4" == 'beta' ]; then
         echo "Update beta version"
@@ -122,6 +133,7 @@ elif [ "$BETA" ]; then
         VNUM5=1
         NEW_TAG="v$VNUM1.$VNUM2.$VNUM3-$VNUM4.$VNUM5"
     fi
+# Upon receiving the RC command sets the phase to rc and phase number to 1.
 elif [ "$RC" ]; then
     if [ "$BRANCH" == "main" ]; then
         if [ "$VNUM4" == 'rc' ]; then
@@ -162,6 +174,8 @@ fi
 GIT_COMMIT=`git rev-parse HEAD`
 NEEDS_TAG=`git describe --contains $GIT_COMMIT 2>/dev/null`
 
+echo "################################################################"
+echo "Bash Version Script Output"
 echo "################################################################"
 if [ -z "$NEW_TAG" ]; then
     echo "No instruction detected the branch will remain as $VERSION"
