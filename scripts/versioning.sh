@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# This bash script automates versioning for GitHub repositories
+# This bash shell script automates versioning for GitHub repositories
 # Created on: October 2023
 #     Author: Jamie Holland at IMI Critical Engineering, Poole.
 # Last Modified on: January 2024
@@ -47,6 +47,7 @@ fi
 
 # Runs checks for the Major, Minor and Patch instructions,
 # also resets the phase number if incremental commands are run.
+
 # Upon receiving the MAJOR command increments the version number and resets the phase number.
 if [ "$MAJOR" ]; then
     echo "Update major version"
@@ -95,6 +96,7 @@ elif ([ -z "$VNUM4" ] && [ "$BRANCH" != "main" ]); then
 fi
 
 # Runs checks for the Clean, Phase, Alpha, Beta and RC instructions
+
 # Upon receiving the CLEAN command removes the phase and phase number.
 if [ "$CLEAN" ]; then
     if [ "$BRANCH" == "main" ]; then
@@ -175,7 +177,7 @@ GIT_COMMIT=`git rev-parse HEAD`
 NEEDS_TAG=`git describe --contains $GIT_COMMIT 2>/dev/null`
 
 echo "################################################################"
-echo "Bash Version Script Output"
+echo "Bash Shell Script Versioning Output:"
 echo "################################################################"
 if [ -z "$NEW_TAG" ]; then
     echo "No instruction detected the branch will remain as $VERSION"
