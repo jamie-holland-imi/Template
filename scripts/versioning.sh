@@ -143,6 +143,7 @@ elif [ "$VNUM5" == "0" ]; then
     NEW_TAG="v$VNUM1.$VNUM2.$VNUM3-$VNUM4.$VNUM5"
 fi
 
+# checks if tag is valid, if not increment the phase number until a valid tag is found
 if [ $(git tag -l "$NEW_TAG") ]; then
     VALID=false
     while [ "$VALID" = false ];  do
