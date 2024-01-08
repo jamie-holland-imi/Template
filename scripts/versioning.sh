@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Developed by Jamie Holland at IMI Critical Engineering, Poole.
+# This bash script automates versioning for GitHub repositories
+
 #get highest tag number
 REVLIST=`git rev-list --tags --max-count=1`
 VERSION=`git describe --tags $REVLIST`
@@ -70,6 +73,18 @@ elif [ "$PATCH" ]; then
     fi
 fi
 
+# check if the previous tag was clean and branch is still main, if so revert to rc.
+if ([ -z "$VNUM4" ] && [ "$BRANCH" == "main" ]); then
+    VNUM4='rc'
+    VNUM5=1
+    NEW_TAG="v$VNUM1.$VNUM2.$VNUM3-$VNUM4.$VNUM5"
+# check if the previous tag was clean, if so revert to alpha.
+elif [ -z "$VNUM4" ]; then
+    VNUM4='alpha'
+    VNUM5=1
+    NEW_TAG="v$VNUM1.$VNUM2.$VNUM3-$VNUM4.$VNUM5"
+fi
+
 if [ "$CLEAN" ]; then
     if [ "$BRANCH" == "main" ]; then
         echo "Create a clean release tag removing additional labels"
@@ -79,16 +94,9 @@ if [ "$CLEAN" ]; then
         NEW_TAG="invalidbranch"
     fi
 elif [ "$PHASE" ]; then
-    if [ -z "$VNUM4" ]; then
-        echo "Not currently in a phase will set to alpha"
-        VNUM4='alpha'
-        VNUM5=1
-        NEW_TAG="v$VNUM1.$VNUM2.$VNUM3-$VNUM4.$VNUM5"
-    else
-        echo "Update phase $VNUM4 version"
-        VNUM5=$((VNUM5+1))
-        NEW_TAG="v$VNUM1.$VNUM2.$VNUM3-$VNUM4.$VNUM5"
-    fi
+    echo "Update phase $VNUM4 version"
+    VNUM5=$((VNUM5+1))
+    NEW_TAG="v$VNUM1.$VNUM2.$VNUM3-$VNUM4.$VNUM5"
 elif [ "$ALPHA" ]; then
     if [ "$VNUM4" == 'alpha' ]; then
         echo "Update alpha version"
