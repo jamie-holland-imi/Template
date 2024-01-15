@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     tags:
-      - '*.*.*-rc.*'
+      - '*-rc.1'
   pull_request:
     branches:
       - '**'
