@@ -16,7 +16,7 @@ env:
   REPO_NAME: ${{ github.event.repository.name }}
   USER_NAME: ${{ github.actor }}
   ORG_NAME: ${{ github.repository_owner }}
-  VERSION: ${{ GITHUB_REF/refs\/tags\// }}
+  VERSION: ${{ inputs.tag }}
   IMAGE_TAG: ${REGISTRY,,}"/"${ORG_NAME,,}"/"${REPO_NAME,,}":"${VERSION,,}
   
 jobs:
