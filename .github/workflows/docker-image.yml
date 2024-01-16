@@ -18,7 +18,10 @@ env:
   ORG_NAME: ${{ github.repository_owner }}
   VERSION: ${{ github.event.inputs.TAG_NAME || github.event.release.tag_name }}
   IMAGE_TAG: ${REGISTRY,,}"/"${ORG_NAME,,}"/"${REPO_NAME,,}":"${VERSION,,}
-  
+defaults:
+  run:
+    shell: pwsh
+    
 jobs:
   variable_substitution:
     runs-on: ubuntu-22.04
